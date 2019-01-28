@@ -109,8 +109,8 @@ intents.matches("PaymentStatus", [
 //Intent for Greetings
 intents.matches('Greeting', function (session, args, next) {
   session.send("Hello ! I am Eva. I can assist you with your invoice and payment related queries !");
-  session.send("Type \"help\" or \"menu\" to get the list of items I can help you with");
-});
+  session.send("Type \"help\" or \"menu\" to get the list of items I can help you with or ask a question related to your invoice and payments.");
+}) ;
 
 //Intent for Help
 intents.matches('Help', [
@@ -169,9 +169,9 @@ intents.matches("SupplierStatus", [
       if (data.length == 0) {
           session.send("Sorry ! Seems like there is no Supplier on this given Supplier ID");
       } else { 
-      session.send("Hey ! I found the following records -");  
+        
       for (var i = 0; i < data.length; i++) {
-    
+          session.send("Hey ! I found the following records -");
           var __invoice_id = data[i]['invoice_id'];
           var __invoice_status = data[i]['invoice_status'];
           var __balance_due = data[i]['balance_due'];
