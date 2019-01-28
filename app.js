@@ -29,15 +29,15 @@ server.post('/api/messages', connector.listen());
 * For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
 * ---------------------------------------------------------------------------------------- */
 
-//var tableName = 'botdata';
-//var azureTableClient = new botbuilder_azure.AzureTableClient(tableName, process.env['AzureWebJobsStorage']);
-//var tableStorage = new botbuilder_azure.AzureBotStorage({ gzipData: false }, azureTableClient);
+var tableName = 'botdata';
+var azureTableClient = new botbuilder_azure.AzureTableClient(tableName, process.env['AzureWebJobsStorage']);
+var tableStorage = new botbuilder_azure.AzureBotStorage({ gzipData: false }, azureTableClient);
 
 // Create your bot with a function to receive messages from the user
 // This default message handler is invoked if the user's utterance doesn't
 // match any intents handled by other dialogs.
 var bot = new builder.UniversalBot(connector);
-//bot.set('storage', tableStorage);
+bot.set('storage', tableStorage);
 
 // Make sure you add code to validate these fields
 var luisAppId = "f9f21b33-1436-4de9-ba02-5fe838321101";
@@ -602,19 +602,22 @@ bot.dialog("allPendingInvoice", [
   function (session, results) {
     //console.log("Supplier name is " + session.userData.supplier_name);
     var supplier_id = session.userData.supplier_id;
-    var url = "http://40.121.88.94:8081/supplier/" + supplier_id.toUpperCase();
+    var url = "http://40.121.88.94:8081/supplier/pending/" + supplier_id.toUpperCase();
       request.get(url, (error, response, body) => {
       if(error) {
           return console.dir(error);
       } //end if 
       var data = JSON.parse(body);
+      console.log(data);
       if (data.length == 0) {
-          session.send("Sorry ! Seems like there is no invoice on this given Supplier ID");
+          session.send("Sorry ! Seems like there is no Pending invoice on this given Supplier ID");
           session.endDialog();
       } else { 
-      session.send("Hey ! I found the following records -");  
+      
       for (var i = 0; i < data.length; i++) {
+        
         if(data[i]['invoice_status'] == "Pending") {
+          session.send("Hey ! I found the following records -"); 
           var __invoice_id = data[i]['invoice_id'];
           var __invoice_status = data[i]['invoice_status'];
           var __balance_due = data[i]['balance_due'];
@@ -792,6 +795,7 @@ bot.dialog("allPendingInvoice", [
        } //end if 
       } //end for loop   
   }//end else
+  
      
     }) //end of request
 session.endDialog();
@@ -812,14 +816,14 @@ bot.dialog("allApprovedInvoice", [
   function (session, results) {
     //console.log("Supplier name is " + session.userData.supplier_name);
     var supplier_id = session.userData.supplier_id;
-    var url = "http://40.121.88.94:8081/supplier/" + supplier_id.toUpperCase();
+    var url = "http://40.121.88.94:8081/supplier/approved/" + supplier_id.toUpperCase();
       request.get(url, (error, response, body) => {
       if(error) {
           return console.dir(error);
       } //end if 
       var data = JSON.parse(body);
       if (data.length == 0) {
-          session.send("Sorry ! Seems like there is no invoice on this given Supplier ID");
+          session.send("Sorry ! Seems like there is no invoice on this given Supplier ID with Approved status");
           session.endDialog();
       } else { 
       session.send("Hey ! I found the following records -");  
@@ -1031,9 +1035,12 @@ bot.dialog("allPendingPayments", [
           session.send("Sorry ! Seems like there is no invoice on this given Supplier ID");
           session.endDialog();
       } else { 
-      session.send("Hey ! I found the following records -");  
+       
+      var found = 0
       for (var i = 0; i < data.length; i++) {
         if(data[i]['payment_status'] == "Pending") {  
+          found = 1;
+          session.send("Hey ! I found the following records -");
           var __invoice_id = data[i]['invoice_id'];
           var __invoice_status = data[i]['invoice_status'];
           var __balance_due = data[i]['balance_due'];
@@ -1210,6 +1217,9 @@ bot.dialog("allPendingPayments", [
       });session.send(adaptiveCardMessage);
     } //end if  
     } //end for loop   
+    if (found == 0) {
+      session.send("Seems like there are no Pending Payments on this given Supplier ID.")
+    }
   }//end else
      
     }) //end of request
@@ -1240,9 +1250,11 @@ bot.dialog("allApprovedPayments", [
           session.send("Sorry ! Seems like there is no invoice on this given Supplier ID");
           session.endDialog();
       } else { 
-      session.send("Hey ! I found the following records -");  
+       var found = 0;
       for (var i = 0; i < data.length; i++) {
         if(data[i]['payment_status'] == "Approved") {  
+          found = 1
+          session.send("Hey ! I found the following records -");  
           var __invoice_id = data[i]['invoice_id'];
           var __invoice_status = data[i]['invoice_status'];
           var __balance_due = data[i]['balance_due'];
@@ -1419,6 +1431,9 @@ bot.dialog("allApprovedPayments", [
       });session.send(adaptiveCardMessage);
     } //end if  
     } //end for loop   
+    if (found == 0) {
+      session.send("Seems like there are no Approved Payments on this given Supplier ID")
+    }
   }//end else
      
     }) //end of request
