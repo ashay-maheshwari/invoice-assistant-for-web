@@ -6,8 +6,8 @@ var request = require('request');
 var rootFolder = path.resolve('.');
 var zipPath = path.resolve(rootFolder, '../invicepaymentassistant.zip');
 var kuduApi = 'https://invicepaymentassistant.scm.azurewebsites.net/api/zip/site/wwwroot';
-var userName = '$invicepaymentassistant';
-var password = 'qwnvqvlFz8pKNLs8LcRuELuLk6E59aaSykstwuuNrvtldDc7TTMdCZoZ9mpu';
+var userName = '';
+var password = '';
 
 function uploadZip(callback) {
   fs.createReadStream(zipPath).pipe(request.put(kuduApi, {
